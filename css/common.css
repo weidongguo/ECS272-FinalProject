@@ -1,0 +1,17 @@
+#map {
+  height: 92%;
+  width: 31%;
+ }
+
+.breadcrumb {
+	margin-bottom: 0;
+}
+
+.view {
+	display:inline-block;
+}
+
+.highlight {
+	stroke-width: 4;
+	stroke: orange;
+}
