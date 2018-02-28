@@ -82,9 +82,10 @@ googleMapStyles = [
 var markers = []
 
 function initMap() {
-  var nlp = [{latitude:37.775474, longitude: -122.4159424}];
+  // var nlp = [{latitude:37.775474, longitude: -122.4159424}];
+  var nlp = sfhealthscore;
   locations = nlp.map(function(d,i) {
-    return {lat: d.latitude, lng: d.longitude};    
+    return {lat: d.business_latitude, lng: d.business_longitude};    
   })
   var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 10,
@@ -92,10 +93,10 @@ function initMap() {
     styles: googleMapStyles
   });
 
-  nlp.forEach(function(d, i){
+  locations.forEach(function(d, i){
     window.setTimeout(function() {
       var marker = new google.maps.Marker({
-        position: {lat: d.latitude, lng: d.longitude},
+        position: {lat: d.lat, lng: d.lng},
         map: map,
         animation: google.maps.Animation.DROP,
         //label: d.stars + ""
@@ -145,7 +146,7 @@ function initMap() {
       });
       markers.push(marker);
       */
-    }, 500 * i);
+    }, 0);//500 * i);
   });
 
 }

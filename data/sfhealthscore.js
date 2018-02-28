@@ -1,4 +1,4 @@
-[
+var sfhealthscore = [
 	{
 		"business_id" : 10,
 		"inspection_score" : 92,
