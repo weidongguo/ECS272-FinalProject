@@ -9,12 +9,13 @@
 	<body>
 		<nav aria-label="breadcrumb">
 		  <ol class="breadcrumb">
-		    <li class="breadcrumb-item"><a href="index.html">Health inspection scores for San Francisco restaurants</a></li>
-		    <li class="breadcrumb-item active" aria-current="page" id="title"></li>
+		    <li class="breadcrumb-item"><a href="index.html" id="title">Health inspection scores for San Francisco restaurants</a></li>
+		    <li class="breadcrumb-item active" aria-current="page" id="subtitle"></li>
 		  </ol>
 		</nav>
     
     <div id="map"	class="view"></div>
+    <div id="scatterplot" class="view"></div>
 
 		<!-- external libraries -->
 		<script src="javascript/lib/jquery-3.2.1.js"></script>
@@ -23,17 +24,19 @@
 		<script src="javascript/lib/d3-cloud.min.js"></script>
     
     <script src="data/sfhealthscore.js"></script>
+    <script src="data/usvideo.js"></script>
 
 		<!-- Own js -->		
-		<script src="javascript/Margin.js"></script>
+		<script src="javascript/BoxModel.js"></script>
+		<script src="javascript/ScatterPlot.js"></script>
 		
 		<!--my callback for google map api-->
 		<script src="javascript/googleMap.js"></script>
 		
 		<!-- google map api -->
-		<script async defer
+		<!--<script async defer
 			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBInM5gtvOB8r2jzA3r7IhlRDnc8miYKwc&callback=initMap">
-		</script>
+		</script>-->
 
 		
 

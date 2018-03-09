@@ -82,9 +82,9 @@ googleMapStyles = [
 var markers = []
 
 function initMap() {
-  // var nlp = [{latitude:37.775474, longitude: -122.4159424}];
-  var nlp = sfhealthscore;
-  locations = nlp.map(function(d,i) {
+  // var geographicData = [{latitude:37.775474, longitude: -122.4159424}];
+  var geographicData = sfhealthscore;
+  locations = geographicData.map(function(d,i) {
     return {lat: d.business_latitude, lng: d.business_longitude};    
   })
   var map = new google.maps.Map(document.getElementById('map'), {
