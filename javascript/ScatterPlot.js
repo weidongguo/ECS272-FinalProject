@@ -19,17 +19,37 @@ class ScatterPlot {
 	}
 
 	drawYAxis() {
-		var axis = d3.axisLeft().scale(this.mapY).ticks(5);
 		var g = this.g.append("g");
+
+		// Draw axis and tick marks.
+		var axis = d3.axisLeft().scale(this.mapY).ticks(5);
 		g.attr("class", "yAxis").call(axis);
+		
+		// Draw Label for the axis.
+		g.append("text")
+			.text(this.data.y.label)
+			.attr("fill", "black")
+			//.attr("x", this.boxModel.contentOriginX)
+			//.attr("y", this.boxModel.contentHeight / 2)
+			.attr("text-anchor", "middle");
 
 	}
 
 	drawXAxis() {
-		var axis = d3.axisBottom().scale(this.mapX).ticks(5);
 		var g = this.g.append("g");
+
+		// Draw axis and tick marks
+		var axis = d3.axisBottom().scale(this.mapX).ticks(5);
 		g.attr("class", "xAxis").call(axis)
 			.attr("transform", `translate(0, ${this.boxModel.contentHeight})`);
+		
+		// Draw Label for the axis.
+		g.append("text")
+			.text(this.data.x.label)
+			.attr("fill", "black")
+			//.attr("y", this.boxModel.contentOriginY)
+			.attr("x", this.boxModel.contentWidth)
+			.attr("text-anchor", "middle");
 	}
 
 	plot(r) {
@@ -44,7 +64,6 @@ class ScatterPlot {
 				.attr('fill', this.mapClass(cl))
 				.attr('r', r);
 		})
-
 	}
 }
 
