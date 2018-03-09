@@ -32,7 +32,6 @@ class ScatterPlot {
 			//.attr("x", this.boxModel.contentOriginX)
 			//.attr("y", this.boxModel.contentHeight / 2)
 			.attr("text-anchor", "middle");
-
 	}
 
 	drawXAxis() {
@@ -62,7 +61,17 @@ class ScatterPlot {
 				.attr('cx', this.mapX(x))
 				.attr('cy', this.mapY(y))
 				.attr('fill', this.mapClass(cl))
-				.attr('r', r);
+				.attr('r', r)
+				.attr('data-toggle', 'popover')
+				.attr('data-trigger', 'focus')
+				.attr('tabindex', '0')
+				.attr('title', entry[this.data.detail.title_label])
+				.attr('data-content', `
+					<img src = ${entry[this.data.detail.image_label]} />
+					${this.data.detail.other_labels.map((label)=> {
+						return '<div>' + entry[label] + '</div>'	
+					}).join("")}
+				`);
 		})
 	}
 }
@@ -92,6 +101,17 @@ for(var i = 0 ; i < 1000; i++) {
 	);
 }*/
 
+// enable popover
+function EnablePopOver() {
+	$(function () {
+	  $('[data-toggle="popover"]').popover({
+	  	placement: 'auto',
+	  	//trigger: 'focus',
+	  	html: true
+	  })
+	})
+}
+
 new ScatterPlot(
 	"#scatterplot", 
 	new BoxModel, 
@@ -107,6 +127,17 @@ new ScatterPlot(
 		class: {
 			label: 'category_id',
 		},
+		detail: {
+			title_label: 'title',
+			image_label: 'img_link',
+			description_label: 'description',
+			other_labels: [
+				"channel_title",
+				"publish_time" 
+			]
+		},
 		content: usvideo
 	}
 );
+
+EnablePopOver();
