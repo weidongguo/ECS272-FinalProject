@@ -3,7 +3,7 @@ class ScatterPlot {
 		this.boxModel = boxModel;
 		this.data = data;
 		this.mapX = d3.scaleLinear().domain(data.x.range).range([0, boxModel.contentWidth]);
-		this.mapY = d3.scaleLinear().domain(data.y.range).range([boxModel.contentHeight, 0]);		
+		this.mapY = d3.scaleLog().domain(data.y.range).range([boxModel.contentHeight, 0]);		
 		this.mapClass = d3.scaleOrdinal(d3.schemeCategory10);
 		// Attach svg to element with given id 
 		this.svg = d3.select(id).append("svg")
