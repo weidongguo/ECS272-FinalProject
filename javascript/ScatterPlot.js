@@ -14,24 +14,30 @@ class ScatterPlot {
 			.attr("transform", `translate(${boxModel.contentOriginX}, ${boxModel.contentOriginY})`);
 		
 		// Draw axes on the svg canvs.
-		var g_YAxis = this.g.append("g").attr('class', 'yAxis');
+		var g_YAxis = this.g.append("g");
 		var yAxis = this.drawYAxis(g_YAxis);
 
-		var g_XAxis = this.g.append("g").attr('class', 'xAxis');
+		var g_XAxis = this.g.append("g");
 		var xAxis = this.drawXAxis(g_XAxis);
 
 		// Draw Points on canvas.
-		var g_Points = this.g.append("g").attr("class", "points");
-		this.plot(g_Points);
+		var g_Points = this.g.append("svg")
+			.attr("width", boxModel.contentWidth)
+			.attr("height", boxModel.contentHeight)
+			.append('g').attr("class", "points");
+
+		var radius = 2;
+		this.plot(g_Points, radius);
 
 		// Enable Zoom
 		var zoom = d3.zoom()
-			.scaleExtent([1, 10])
-			.translateExtent([[0, 0], [boxModel.width, boxModel.height]])
+			.scaleExtent([1, 1000])
+			.translateExtent([[0, 0], [boxModel.width, boxModel.height - 10]])
     		.on("zoom", () => {
     		  g_Points.attr("transform", d3.event.transform);
 			  g_XAxis.call(xAxis.scale(d3.event.transform.rescaleX(this.mapX)));
 			  g_YAxis.call(yAxis.scale(d3.event.transform.rescaleY(this.mapY)));
+			  d3.selectAll('.dots').attr('r', radius/d3.event.transform.k)
 			  console.log(d3.event.transform);
 
     		});
@@ -75,6 +81,7 @@ class ScatterPlot {
 			var y = entry[this.data.y.label];
 			var cl = entry[this.data.class.label];
 			g.append("circle")
+				.attr('class', 'dots')
 				.attr('cx', this.mapX(x))
 				.attr('cy', this.mapY(y))
 				.attr('fill', this.mapClass(cl))
@@ -86,7 +93,7 @@ class ScatterPlot {
 				.attr('data-content', `
 					<img src = ${entry[this.data.detail.image_label]} />
 					${this.data.detail.other_labels.map((label)=> {
-						return '<div>' + entry[label] + '</div>'	
+						return '<div>' + label.replace('_', ' ') + ': ' + entry[label] + '</div>'	
 					}).join("")}
 				`);
 		})
@@ -150,7 +157,9 @@ new ScatterPlot(
 			description_label: 'description',
 			other_labels: [
 				"channel_title",
-				"publish_time" 
+				"publish_time",
+				"comment_count",
+				"likes" 
 			]
 		},
 		content: usvideo
