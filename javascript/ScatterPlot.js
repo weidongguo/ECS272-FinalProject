@@ -79,6 +79,7 @@ class ScatterPlot {
 			var x = entry[this.data.x.label];
 			var y = entry[this.data.y.label];
 			var cl = entry[this.data.class.label];
+			var tStr = entry[this.data.detail.time_label]
 			g.append("circle")
 				.attr('class', 'dots')
 				.attr('cx', this.mapX(x))
@@ -91,6 +92,7 @@ class ScatterPlot {
 				.attr('title', entry[this.data.detail.title_label])
 				.attr('data-content', `
 					<img src = ${entry[this.data.detail.image_label]} />
+					<div>${this.data.detail.time_label + ": " + tStr.slice(0, tStr.indexOf('T'))}</div>
 					${this.data.detail.other_labels.map((label)=> {
 						return '<div>' + label.replace('_', ' ') + ': ' + entry[label] + '</div>'	
 					}).join("")}
@@ -129,7 +131,7 @@ function EnablePopOver() {
 	$(function () {
 	  $('[data-toggle="popover"]').popover({
 	  	placement: 'auto',
-	  	//trigger: 'focus',
+	  	//trigger: 'click',
 	  	html: true
 	  })
 	})
@@ -154,9 +156,9 @@ new ScatterPlot(
 			title_label: 'title',
 			image_label: 'img_link',
 			description_label: 'description',
+			time_label: 'publish_time',
 			other_labels: [
 				"channel_title",
-				"publish_time",
 				"comment_count",
 				"likes" 
 			]
