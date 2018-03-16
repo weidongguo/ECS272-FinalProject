@@ -1,9 +1,9 @@
 class ScatterPlot {
-	constructor(id, boxModel, data) {
+	constructor(id, boxModel, data, radius) {
 		this.boxModel = boxModel;
 		this.data = data;
-		this.mapX = d3.scaleLinear().domain(data.x.range).range([0, boxModel.contentWidth]);
-		this.mapY = d3.scaleLinear().domain(data.y.range).range([boxModel.contentHeight, 0]);		
+		this.mapX = d3.scaleLinear().domain(data.x.range).range([0, boxModel.contentWidth-radius]);
+		this.mapY = d3.scaleLinear().domain(data.y.range).range([boxModel.contentHeight-radius, 0+radius]);		
 		this.mapClass = d3.scaleOrdinal(d3.schemeCategory10);
 		// Attach svg to element with given id 
 		this.svg = d3.select(id).append("svg")
@@ -21,25 +21,24 @@ class ScatterPlot {
 		var xAxis = this.drawXAxis(g_XAxis);
 
 		// Draw Points on canvas.
-		var g_Points = this.g.append("svg")
+		var g_Points = this.g
+			.append("svg")
 			.attr("width", boxModel.contentWidth)
 			.attr("height", boxModel.contentHeight)
-			.append('g').attr("class", "points");
-
-		var radius = 2;
+			.append('g').attr("class", "points")
+		
 		this.plot(g_Points, radius);
 
 		// Enable Zoom
 		var zoom = d3.zoom()
 			.scaleExtent([1, 1000])
-			.translateExtent([[0, 0], [boxModel.width, boxModel.height - 10]])
+			.translateExtent([[0, 0], [boxModel.width, boxModel.height]])
     		.on("zoom", () => {
     		  g_Points.attr("transform", d3.event.transform);
 			  g_XAxis.call(xAxis.scale(d3.event.transform.rescaleX(this.mapX)));
 			  g_YAxis.call(yAxis.scale(d3.event.transform.rescaleY(this.mapY)));
 			  d3.selectAll('.dots').attr('r', radius/d3.event.transform.k)
-			  console.log(d3.event.transform);
-
+			  // console.log(d3.event.transform);
     		});
     	this.svg.call(zoom);
 	}
@@ -163,7 +162,8 @@ new ScatterPlot(
 			]
 		},
 		content: usvideo
-	}
+	},
+	2
 );
 
 EnablePopOver();

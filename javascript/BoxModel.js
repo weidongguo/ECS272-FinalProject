@@ -11,6 +11,7 @@ class BoxModel {
 		var [pTop, pBottom, pLeft, pRight] = padding;
 		this.contentWidth =  this.width - mLeft - mRight - bLeft - bRight - pLeft - pRight;
 		this.contentHeight = this.height - mTop - mBottom - bTop - bBottom - pTop - pBottom;
+		this.contentDimension = [this.contentWidth, this.contentHeight];
 		this.contentOriginX =  mLeft + bLeft + pLeft;
 		this.contentOriginY =  mTop + bTop + pTop;
 	}
