@@ -3,24 +3,42 @@ class ScatterPlot {
 		this.boxModel = boxModel;
 		this.data = data;
 		this.mapX = d3.scaleLinear().domain(data.x.range).range([0, boxModel.contentWidth]);
-		this.mapY = d3.scaleLog().domain(data.y.range).range([boxModel.contentHeight, 0]);		
+		this.mapY = d3.scaleLinear().domain(data.y.range).range([boxModel.contentHeight, 0]);		
 		this.mapClass = d3.scaleOrdinal(d3.schemeCategory10);
 		// Attach svg to element with given id 
 		this.svg = d3.select(id).append("svg")
 			.attr("width", boxModel.width)
 			.attr("height", boxModel.height);
+		
 		this.g = this.svg.append("g")
 			.attr("transform", `translate(${boxModel.contentOriginX}, ${boxModel.contentOriginY})`);
 		
 		// Draw axes on the svg canvs.
-		this.drawYAxis();
-		this.drawXAxis();
-		this.plot(2);
+		var g_YAxis = this.g.append("g").attr('class', 'yAxis');
+		var yAxis = this.drawYAxis(g_YAxis);
+
+		var g_XAxis = this.g.append("g").attr('class', 'xAxis');
+		var xAxis = this.drawXAxis(g_XAxis);
+
+		// Draw Points on canvas.
+		var g_Points = this.g.append("g").attr("class", "points");
+		this.plot(g_Points);
+
+		// Enable Zoom
+		var zoom = d3.zoom()
+			.scaleExtent([1, 10])
+			.translateExtent([[0, 0], [boxModel.width, boxModel.height]])
+    		.on("zoom", () => {
+    		  g_Points.attr("transform", d3.event.transform);
+			  g_XAxis.call(xAxis.scale(d3.event.transform.rescaleX(this.mapX)));
+			  g_YAxis.call(yAxis.scale(d3.event.transform.rescaleY(this.mapY)));
+			  console.log(d3.event.transform);
+
+    		});
+    	this.svg.call(zoom);
 	}
 
-	drawYAxis() {
-		var g = this.g.append("g");
-
+	drawYAxis(g) {
 		// Draw axis and tick marks.
 		var axis = d3.axisLeft().scale(this.mapY).ticks(5);
 		g.attr("class", "yAxis").call(axis);
@@ -32,11 +50,10 @@ class ScatterPlot {
 			//.attr("x", this.boxModel.contentOriginX)
 			//.attr("y", this.boxModel.contentHeight / 2)
 			.attr("text-anchor", "middle");
+		return axis;
 	}
 
-	drawXAxis() {
-		var g = this.g.append("g");
-
+	drawXAxis(g) {
 		// Draw axis and tick marks
 		var axis = d3.axisBottom().scale(this.mapX).ticks(5);
 		g.attr("class", "xAxis").call(axis)
@@ -49,10 +66,10 @@ class ScatterPlot {
 			//.attr("y", this.boxModel.contentOriginY)
 			.attr("x", this.boxModel.contentWidth)
 			.attr("text-anchor", "middle");
+		return axis;
 	}
 
-	plot(r) {
-		var g = this.g.append("g").attr("class", "points");
+	plot(g, r=2) {
 		this.data.content.map((entry) => {
 			var x = entry[this.data.x.label];
 			var y = entry[this.data.y.label];
@@ -121,8 +138,8 @@ new ScatterPlot(
 			range: labelRange(usvideo, 'likes')
 		},
 		y: {
-			label: 'views',
-			range: labelRange(usvideo, 'views')
+			label: 'comment_count',
+			range: labelRange(usvideo, 'comment_count')
 		},
 		class: {
 			label: 'category_id',

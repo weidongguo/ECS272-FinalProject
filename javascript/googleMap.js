@@ -93,6 +93,7 @@ function initMap() {
     styles: googleMapStyles
   });
 
+  var path = google.maps.SymbolPath.CIRCLE;
   locations.forEach(function(d, i){
     window.setTimeout(function() {
       var marker = new google.maps.Marker({
@@ -100,6 +101,12 @@ function initMap() {
         map: map,
         animation: google.maps.Animation.DROP,
         //label: d.stars + ""
+        /*icon: {
+          path: path,
+          scale: 2,
+          strokeWeight: 2,
+          strokeColor: "#FF0000"
+        }*/
       });
       /*
       var topKeyword = Object.keys(d.keywords)[0];
