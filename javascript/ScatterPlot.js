@@ -1,10 +1,12 @@
+var colormap = d3.scaleOrdinal(d3.schemeCategory10);
 class ScatterPlot {
-	constructor(id, boxModel, data, radius) {
+	constructor(id, boxModel, data, radius, zoomable=true) {
 		this.boxModel = boxModel;
 		this.data = data;
-		this.mapX = d3.scaleLinear().domain(data.x.range).range([0, boxModel.contentWidth-radius]);
+		this.mapX = d3.scaleLinear().domain(data.x.range).range([0+radius, boxModel.contentWidth-radius]);
 		this.mapY = d3.scaleLinear().domain(data.y.range).range([boxModel.contentHeight-radius, 0+radius]);		
-		this.mapClass = d3.scaleOrdinal(d3.schemeCategory10);
+		this.mapClass = colormap;
+		//this.mapClass = d3.scaleOrdinal(["rgb(34, 95,172)", "rgb(248, 159, 50)", "rgb(174, 57,68)"]);
 		// Attach svg to element with given id 
 		this.svg = d3.select(id).append("svg")
 			.attr("width", boxModel.width)
@@ -30,17 +32,19 @@ class ScatterPlot {
 		this.plot(g_Points, radius);
 
 		// Enable Zoom
-		var zoom = d3.zoom()
-			.scaleExtent([1, 1000])
-			.translateExtent([[0, 0], [boxModel.width, boxModel.height]])
-    		.on("zoom", () => {
-    		  g_Points.attr("transform", d3.event.transform);
+		if(zoomable){
+			var zoom = d3.zoom()
+				.scaleExtent([1, 1000])
+				.translateExtent([[0, 0], [boxModel.width, boxModel.height]])
+				.on("zoom", () => {
+				  g_Points.attr("transform", d3.event.transform);
 			  g_XAxis.call(xAxis.scale(d3.event.transform.rescaleX(this.mapX)));
 			  g_YAxis.call(yAxis.scale(d3.event.transform.rescaleY(this.mapY)));
-			  d3.selectAll('.dots').attr('r', radius/d3.event.transform.k)
+			  d3.select(id).selectAll('.dots').attr('r', radius/d3.event.transform.k)
 			  // console.log(d3.event.transform);
-    		});
-    	this.svg.call(zoom);
+				});
+		  this.svg.call(zoom);
+  	}
 	}
 
 	drawYAxis(g) {
@@ -75,29 +79,30 @@ class ScatterPlot {
 	}
 
 	plot(g, r=2) {
-		this.data.content.map((entry) => {
-			var x = entry[this.data.x.label];
-			var y = entry[this.data.y.label];
-			var cl = entry[this.data.class.label];
-			var tStr = entry[this.data.detail.time_label]
-			g.append("circle")
-				.attr('class', 'dots')
-				.attr('cx', this.mapX(x))
-				.attr('cy', this.mapY(y))
-				.attr('fill', this.mapClass(cl))
-				.attr('r', r)
-				.attr('data-toggle', 'popover')
-				.attr('data-trigger', 'focus')
-				.attr('tabindex', '0')
-				.attr('title', entry[this.data.detail.title_label])
-				.attr('data-content', `
-					<img src = ${entry[this.data.detail.image_label]} />
-					<div>${this.data.detail.time_label + ": " + tStr.slice(0, tStr.indexOf('T'))}</div>
-					${this.data.detail.other_labels.map((label)=> {
-						return '<div>' + label.replace('_', ' ') + ': ' + entry[label] + '</div>'	
-					}).join("")}
-				`);
-		})
+		this.data.content.map((group)=> {
+			group.map((entry) => {
+				var x = entry[this.data.x.label];
+				var y = entry[this.data.y.label];
+				var cl = entry[this.data.class.label];
+				var tStr = entry[this.data.detail.time_label]
+				g.append("circle")
+					.attr('class', 'dots')
+					.attr('cx', this.mapX(x))
+					.attr('cy', this.mapY(y))
+					.attr('fill', this.mapClass(cl))
+					.attr('r', r)
+					.attr('data-toggle', 'popover')
+					.attr('data-trigger', 'focus')
+					.attr('tabindex', '0')
+					.attr('title', entry[this.data.detail.title_label])
+					.attr('data-content', `
+						<img src = ${entry[this.data.detail.image_label]} />
+						<div>${this.data.detail.time_label + ": " + tStr.slice(0, tStr.indexOf('T'))}</div>
+						${this.data.detail.other_labels.map((label)=> {
+							return '<div>' + label.replace('_', ' ') + ': ' + entry[label] + '</div>'	
+						}).join("")}
+					`);
+		})})
 	}
 }
 
@@ -113,6 +118,20 @@ function labelRange(data, label) {
 
 	return [min, max];
 }
+
+function groupByClass(data, classLabel) {
+	var groups = {};
+	data.forEach((entry)=> {
+		var className = entry[classLabel]
+		if(groups[className] == undefined)
+			groups[className] = [entry];
+		else
+			groups[className].push(entry)
+	});
+
+	return groups
+}
+
 /*
 function randint(start, end) {
 	var diff = end - start;
@@ -137,8 +156,12 @@ function EnablePopOver() {
 	})
 }
 
+var groups = d3.nest().key(function(d){
+	return d['category_id']
+}).entries(usvideo);
+
 new ScatterPlot(
-	"#scatterplot", 
+	"#main-interface", 
 	new BoxModel, 
 	{
 		x: {
@@ -163,9 +186,46 @@ new ScatterPlot(
 				"likes" 
 			]
 		},
-		content: usvideo
+		// Array of groups of points.
+		content: [groups[0].values, groups[1].values]
 	},
-	2
+	4
 );
+
+groups.forEach((group)=>{
+	new ScatterPlot(
+		"#class-list", 
+		new BoxModel, 
+		{
+			x: {
+				label: 'likes',
+				range: labelRange(usvideo, 'likes')
+			},
+			y: {
+				label: 'comment_count',
+				range: labelRange(usvideo, 'comment_count')
+			},
+			class: {
+				label: 'category_id',
+			},
+			detail: {
+				title_label: 'title',
+				image_label: 'img_link',
+				description_label: 'description',
+				time_label: 'publish_time',
+				other_labels: [
+					"channel_title",
+					"comment_count",
+					"likes" 
+				]
+			},
+			// Array of groups of points.
+			content: [group.values]
+		},
+		4,
+		false
+	);
+
+});
 
 EnablePopOver();
