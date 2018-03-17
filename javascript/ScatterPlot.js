@@ -1,6 +1,7 @@
-var colormap = d3.scaleOrdinal(d3.schemeCategory10);
+var colormap = d3.scaleOrdinal(d3.schemeCategory20);
 class ScatterPlot {
-	constructor(id, boxModel, data, radius, zoomable=true) {
+	constructor(id, boxModel, data, radius, zoomable=true, onClick=null) {
+		this.id = id;
 		this.boxModel = boxModel;
 		this.data = data;
 		this.mapX = d3.scaleLinear().domain(data.x.range).range([0+radius, boxModel.contentWidth-radius]);
@@ -8,9 +9,11 @@ class ScatterPlot {
 		this.mapClass = colormap;
 		//this.mapClass = d3.scaleOrdinal(["rgb(34, 95,172)", "rgb(248, 159, 50)", "rgb(174, 57,68)"]);
 		// Attach svg to element with given id 
-		this.svg = d3.select(id).append("svg")
+		this.svg = d3.select('#' + id).append("svg")
+			.attr('class', 'canvas-' + id)
 			.attr("width", boxModel.width)
-			.attr("height", boxModel.height);
+			.attr("height", boxModel.height)
+			.style("margin", "1px");
 		
 		this.g = this.svg.append("g")
 			.attr("transform", `translate(${boxModel.contentOriginX}, ${boxModel.contentOriginY})`);
@@ -40,16 +43,27 @@ class ScatterPlot {
 				  g_Points.attr("transform", d3.event.transform);
 			  g_XAxis.call(xAxis.scale(d3.event.transform.rescaleX(this.mapX)));
 			  g_YAxis.call(yAxis.scale(d3.event.transform.rescaleY(this.mapY)));
-			  d3.select(id).selectAll('.dots').attr('r', radius/d3.event.transform.k)
+			  d3.select('#' + id).selectAll('.dots').attr('r', radius/d3.event.transform.k)
 			  // console.log(d3.event.transform);
 				});
 		  this.svg.call(zoom);
   	}
+
+  	// The entire plot useds for selection.
+  	if(onClick != null) {
+			this.svg.on('click', function(){
+					onClick();
+					var isSelected = d3.select(this).classed("selected");
+					d3.select(this).classed("selected", !isSelected);
+			});
+		} else {
+			EnablePopOver('#' + this.id);
+		}
 	}
 
 	drawYAxis(g) {
 		// Draw axis and tick marks.
-		var axis = d3.axisLeft().scale(this.mapY).ticks(5);
+		var axis = d3.axisLeft().scale(this.mapY).ticks(this.boxModel.height / 100);
 		g.attr("class", "yAxis").call(axis);
 		
 		// Draw Label for the axis.
@@ -64,7 +78,7 @@ class ScatterPlot {
 
 	drawXAxis(g) {
 		// Draw axis and tick marks
-		var axis = d3.axisBottom().scale(this.mapX).ticks(5);
+		var axis = d3.axisBottom().scale(this.mapX).ticks(this.boxModel.width / 150);
 		g.attr("class", "xAxis").call(axis)
 			.attr("transform", `translate(0, ${this.boxModel.contentHeight})`);
 		
@@ -104,6 +118,7 @@ class ScatterPlot {
 					`);
 		})})
 	}
+
 }
 
 function labelRange(data, label) {
@@ -146,9 +161,9 @@ for(var i = 0 ; i < 1000; i++) {
 }*/
 
 // enable popover
-function EnablePopOver() {
+function EnablePopOver(parent = '') {
 	$(function () {
-	  $('[data-toggle="popover"]').popover({
+	  $(`${parent} [data-toggle="popover"]`).popover({
 	  	placement: 'auto',
 	  	//trigger: 'click',
 	  	html: true
@@ -160,9 +175,12 @@ var groups = d3.nest().key(function(d){
 	return d['category_id']
 }).entries(usvideo);
 
+var selectedGroups = new Set();
+
+// Create a empty scatter plot.
 new ScatterPlot(
-	"#main-interface", 
-	new BoxModel, 
+	"main-interface", 
+	new BoxModel([600, 600]), 
 	{
 		x: {
 			label: 'likes',
@@ -187,15 +205,16 @@ new ScatterPlot(
 			]
 		},
 		// Array of groups of points.
-		content: [groups[0].values, groups[1].values]
+		content: []
 	},
 	4
 );
 
-groups.forEach((group)=>{
+// Create tiny scatter plots for selection.
+groups.forEach((group, i)=>{
 	new ScatterPlot(
-		"#class-list", 
-		new BoxModel, 
+		"class-list", 
+		new BoxModel([150, 150]), 
 		{
 			x: {
 				label: 'likes',
@@ -223,9 +242,49 @@ groups.forEach((group)=>{
 			content: [group.values]
 		},
 		4,
-		false
+		false,
+		() => {
+			if(selectedGroups.has(i))
+				selectedGroups.delete(i);
+			else
+				selectedGroups.add(i);
+
+			d3.select('.canvas-main-interface').remove();
+			new ScatterPlot(
+				"main-interface", 
+				new BoxModel([600, 600]), 
+				{
+					x: {
+						label: 'likes',
+						range: labelRange(usvideo, 'likes')
+					},
+					y: {
+						label: 'comment_count',
+						range: labelRange(usvideo, 'comment_count')
+					},
+					class: {
+						label: 'category_id',
+					},
+					detail: {
+						title_label: 'title',
+						image_label: 'img_link',
+						description_label: 'description',
+						time_label: 'publish_time',
+						other_labels: [
+							"channel_title",
+							"comment_count",
+							"likes" 
+						]
+					},
+					// Array of groups of points.
+					content: [...selectedGroups].map((gIndex)=> {
+						return groups[gIndex].values;
+					})
+					//[groups[0].values, groups[1].values]
+				},
+				4
+			);
+		}
 	);
 
 });
-
-EnablePopOver();
