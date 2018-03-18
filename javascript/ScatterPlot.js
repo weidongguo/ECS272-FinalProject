@@ -1,6 +1,26 @@
 var colormap = d3.scaleOrdinal(d3.schemeCategory20);
+
+function getTransformMatrixByElement(ele) {
+	/*var style = window.getComputedStyle(ele);
+	return new WebKitCSSMatrix(style.transform)*/
+	var consolidate = ele.transform.baseVal.consolidate();
+	if(consolidate != null)
+		return ele.transform.baseVal.consolidate().matrix;
+	else
+		return {a: 1, b: 0, c: 0, d: 1, e: 0, f: 0};
+}
+
+function applyTransformMatrix(m, p) {
+	// p.x, p.y
+	var [x, y] = p;
+	return [
+		m.a * x + m.c * y + m.e,
+		m.b * x + m.d * y + m.f
+	]
+}
+
 class ScatterPlot {
-	constructor(id, boxModel, data, radius, zoomable=true, onClick=null) {
+	constructor(id, boxModel, data, radius, zoomable=true, brushable=true, onClick=null) {
 		this.id = id;
 		this.boxModel = boxModel;
 		this.data = data;
@@ -55,6 +75,38 @@ class ScatterPlot {
 				  // console.log(d3.event.transform);
 				});
 		  this.svg.call(zoom);
+  	}
+
+  	if(brushable){
+  		var brush = d3.brush()
+  			.extent([[0, 0], [boxModel.contentWidth, boxModel.contentHeight]])
+  			.on("brush", ()=> {
+  				var [[xMin, yMin], [xMax, yMax]] = d3.event.selection;
+  				g_Points.selectAll('.dots')
+  					.classed("brushed", function() {
+  						// Need to apply transformation on the coord of the selected circle
+  						// because there's a transformation of its container, namely 'g'. 
+  						// O.w. the brushing will not select he correct points.
+  						var matrix = getTransformMatrixByElement(g_Points.node());
+  						var cir = d3.select(this);
+  						var [cx, cy] = applyTransformMatrix(matrix, [parseFloat(cir.attr('cx')), parseFloat(cir.attr('cy'))]);
+  						return xMin <= cx && cx <= xMax && yMin <= cy && cy <= yMax
+  
+  					});
+
+  				console.log("brush");
+  			}).on("end", ()=> {
+  				if(!d3.event.selection) {
+  					console.log("end");
+  					g_Points.selectAll(".dots")
+  						.classed("brushed", false);
+  				}
+  				
+  			});
+  		this.g.append("g")
+  			.attr("id", "brushing-region")
+  			.call(brush);
+
   	}
 
   	// The entire plot useds for selection.
@@ -250,6 +302,7 @@ groups.forEach((group, i)=>{
 			content: [group.values]
 		},
 		4,
+		false,
 		false,
 		() => {
 			if(selectedGroups.has(i))

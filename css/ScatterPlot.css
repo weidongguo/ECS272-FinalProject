@@ -1,5 +1,5 @@
-#main-interface {
-	
+#main-interface .dots {
+	/*background-blend-mode: color;*/
 }
 
 #class-list {
@@ -10,6 +10,11 @@
 .selected {
 	border-style: solid;
 	border-width: 1px;
+}
+
+.brushed {
+	 fill: black;
+	 /*filter: invert(100%);*/
 }
 
 #class-list svg:hover{
