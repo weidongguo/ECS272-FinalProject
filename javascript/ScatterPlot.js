@@ -19,6 +19,30 @@ function applyTransformMatrix(m, p) {
 	]
 }
 
+// =================================================================
+// Borrowed from a D3 extension: https://github.com/wbkd/d3-extended
+// Didn't find myself using the entire extensions but only two of its functions
+// So, paste them here.
+
+// handy function to make a SVG element becoming the last child of its parent. Hence, bring it to the top of the view.
+d3.selection.prototype.moveToFront = function() {  
+  return this.each(function(){
+    this.parentNode.appendChild(this); // no need to remove the child from its parent if the child is an existing node. It will jsut be moved to the end.
+  });
+};
+
+// Borrowed from https://github.com/wbkd/d3-extended
+// handy function to move a SVG element to be the first child of its parent. Hence bring it to the bottom of the view.
+d3.selection.prototype.moveToBack = function() {  
+    return this.each(function() { 
+        var firstChild = this.parentNode.firstChild; 
+        if (firstChild) { 
+            this.parentNode.insertBefore(this, firstChild); 
+        } 
+    });
+};
+// ==================================================================
+
 class ScatterPlot {
 	constructor(id, boxModel, data, radius, zoomable=true, brushable=true, onClick=null) {
 		this.id = id;
@@ -105,7 +129,7 @@ class ScatterPlot {
   			});
   		this.g.append("g")
   			.attr("id", "brushing-region")
-  			.call(brush);
+  			.call(brush).moveToBack();
 
   	}
 
