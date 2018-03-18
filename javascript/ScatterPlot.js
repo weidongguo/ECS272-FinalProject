@@ -70,6 +70,11 @@ class ScatterPlot {
 		this.g = this.svg.append("g")
 			.attr("transform", `translate(${boxModel.contentOriginX}, ${boxModel.contentOriginY})`);
 		
+		// Draw title
+		var g_Title = this.svg.append("g")
+			.attr("transform", `translate(${boxModel.width / 2}, ${boxModel.contentOriginY / 2})`);
+		this.drawLabel(g_Title, data.name);
+
 		// Draw axes on the svg canvs.
 		var g_YAxis = this.g.append("g");
 		var yAxis = this.drawYAxis(g_YAxis);
@@ -143,6 +148,14 @@ class ScatterPlot {
 		} else {
 			EnablePopOver('#' + this.id);
 		}
+	}
+
+	drawLabel(g, label) {
+		g.append('text')
+			.attr("text-anchor", 'middle')
+			.attr("font-size", '14px')
+			.attr("font-weight", 'bold')
+			.text(label);
 	}
 
 	drawYAxis(g) {
@@ -323,7 +336,8 @@ groups.forEach((group, i)=>{
 				]
 			},
 			// Array of groups of points.
-			content: [group.values]
+			content: [group.values],
+			name: [usvideo_category[group.key]]
 		},
 		4,
 		false,
