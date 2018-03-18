@@ -8,9 +8,17 @@ class ScatterPlot {
 		this.mapY = d3.scaleLinear().domain(data.y.range).range([boxModel.contentHeight-radius, 0+radius]);		
 		this.mapClass = colormap;
 		//this.mapClass = d3.scaleOrdinal(["rgb(34, 95,172)", "rgb(248, 159, 50)", "rgb(174, 57,68)"]);
+		
+		// Find the element to attach the plot.
+		var view = d3.select('#' + id);
+
+		// Generate a id for the new svg.
+		var svgid = id + (view.node().childElementCount + 1);
+
 		// Attach svg to element with given id 
-		this.svg = d3.select('#' + id).append("svg")
+		this.svg = view.append("svg")
 			.attr('class', 'canvas-' + id)
+			.attr('id', svgid)
 			.attr("width", boxModel.width)
 			.attr("height", boxModel.height)
 			.style("margin", "1px");
@@ -41,10 +49,10 @@ class ScatterPlot {
 				.translateExtent([[0, 0], [boxModel.width, boxModel.height]])
 				.on("zoom", () => {
 				  g_Points.attr("transform", d3.event.transform);
-			  g_XAxis.call(xAxis.scale(d3.event.transform.rescaleX(this.mapX)));
-			  g_YAxis.call(yAxis.scale(d3.event.transform.rescaleY(this.mapY)));
-			  d3.select('#' + id).selectAll('.dots').attr('r', radius/d3.event.transform.k)
-			  // console.log(d3.event.transform);
+				  g_XAxis.call(xAxis.scale(d3.event.transform.rescaleX(this.mapX)));
+				  g_YAxis.call(yAxis.scale(d3.event.transform.rescaleY(this.mapY)));
+				  d3.select('#' + svgid).selectAll('.dots').attr('r', radius/d3.event.transform.k)
+				  // console.log(d3.event.transform);
 				});
 		  this.svg.call(zoom);
   	}
@@ -133,7 +141,7 @@ function labelRange(data, label) {
 
 	return [min, max];
 }
-
+/*
 function groupByClass(data, classLabel) {
 	var groups = {};
 	data.forEach((entry)=> {
@@ -145,7 +153,7 @@ function groupByClass(data, classLabel) {
 	});
 
 	return groups
-}
+}*/
 
 /*
 function randint(start, end) {
