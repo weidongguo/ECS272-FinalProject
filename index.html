@@ -10,8 +10,8 @@
 	<body>
 		<nav aria-label="breadcrumb">
 		  <ol class="breadcrumb">
-		    <li class="breadcrumb-item"><a href="index.html" id="title"></a>Two datasets that have occlusions</li>
-		    <li class="breadcrumb-item active" aria-current="page" id="subtitle"></li>
+		    <li class="breadcrumb-item"><a href="index.html" id="title"></a>Multi-class Blue noise sampling</li>
+		    <li class="breadcrumb-item active" aria-current="page" id="subtitle">Trending Youtube Video Statistics</li>
 		  </ol>
 		</nav>
     
@@ -20,11 +20,31 @@
 	  	<div id="map"></div>	
 	  </div>-->
   	
-
-    <div class="view">
-    	<center><h4>Metrics for trending videos on Youtube</h4></center>
-    	<div id="main-interface" class="view"></div>
-    	<div id="class-list" class="view"></div>
+    <div>
+		  <button type="button" class="btn btn-light">Brush Blending mode 
+	  		<span class="badge badge-light">
+				  <div class="btn-group btn-group-toggle" data-toggle="buttons">
+					  <label class="btn btn-light active" onclick="ScatterPlot.colorBlending.call(this, 'normal')">
+					    <input type="radio" checked> Normal
+					  </label>
+					  <label class="btn btn-light" onclick="ScatterPlot.colorBlending.call(this, 'multiply')">
+					    <input type="radio"> Multiply
+					  </label>
+					  <label class="btn btn-light" onclick="ScatterPlot.colorBlending.call(this, 'difference')">
+					    <input type="radio"> Difference
+					  </label>
+					</div>
+				</span>	
+			</button>
+			<!--<div class="btn-group btn-group-toggle" data-toggle="buttons">
+				  <label class="btn btn-light" id='sampling'">-->
+				    <input type="checkbox" autocomplete="off" id='sampling' > Sampling
+			<!--	  </label>
+			</div>-->
+  		<div>
+	    	<div id="main-interface" class="view"></div>
+	    	<div id="class-list" class="view"></div>
+    	</div>
     </div>
 
 		<!-- external libraries -->

@@ -109,18 +109,22 @@ class ScatterPlot {
   	if(brushable){
   		var brush = d3.brush()
   			.extent([[0, 0], [boxModel.contentWidth, boxModel.contentHeight]])
-  			.on("brush", ()=> {
+  			.on("brush", function() {
+  				var brushingRegion = this;
   				var [[xMin, yMin], [xMax, yMax]] = d3.event.selection;
   				g_Points.selectAll('.dots')
-  					.classed("brushed", function() {
+  					.style("mix-blend-mode", function() {
   						// Need to apply transformation on the coord of the selected circle
   						// because there's a transformation of its container, namely 'g'. 
   						// O.w. the brushing will not select he correct points.
   						var matrix = getTransformMatrixByElement(g_Points.node());
   						var cir = d3.select(this);
   						var [cx, cy] = applyTransformMatrix(matrix, [parseFloat(cir.attr('cx')), parseFloat(cir.attr('cy'))]);
-  						return xMin <= cx && cx <= xMax && yMin <= cy && cy <= yMax
-  
+  						if(xMin <= cx && cx <= xMax && yMin <= cy && cy <= yMax) {
+  							return ScatterPlot.mixBlendMode;
+  						} else {
+  							return 'normal';
+  						}
   					});
 
   				console.log("brush");
@@ -216,6 +220,10 @@ class ScatterPlot {
 		})})
 	}
 
+	static colorBlending(mode) {
+		ScatterPlot.mixBlendMode = mode;
+	}
+
 }
 
 function labelRange(data, label) {
@@ -269,56 +277,32 @@ function EnablePopOver(parent = '') {
 }
 
 
-var data_content = usvideo_sampled_indices.map(function(i){
-	return usvideo[i];
-});
+function main(content, category, sampled_indices = null) {
+	d3.select('#class-list').selectAll("*").remove();
+	d3.select('#main-interface').selectAll("*").remove();
 
-var data_category = usvideo_category;
+	var data_content = content;
+	if(sampled_indices != null) {
+		data_content = sampled_indices.map(function(i){
+			return usvideo[i];
+		});
+	}
+	
 
-var groups = d3.nest().key(function(d){
-	return d['category_id']
-}).entries(data_content);
+	var data_category = category;
 
-var selectedGroups = new Set();
+	var r = 2;
 
-// Create a empty scatter plot.
-new ScatterPlot(
-	"main-interface", 
-	new BoxModel([600, 600]), 
-	{
-		x: {
-			label: 'likes',
-			range: labelRange(data_content, 'likes')
-		},
-		y: {
-			label: 'comment_count',
-			range: labelRange(data_content, 'comment_count')
-		},
-		class: {
-			label: 'category_id',
-		},
-		detail: {
-			title_label: 'title',
-			image_label: 'img_link',
-			description_label: 'description',
-			time_label: 'publish_time',
-			other_labels: [
-				"channel_title",
-				"comment_count",
-				"likes" 
-			]
-		},
-		// Array of groups of points.
-		content: []
-	},
-	4
-);
+	var groups = d3.nest().key(function(d){
+		return d['category_id']
+	}).sortKeys(d3.ascending).entries(data_content);
 
-// Create tiny scatter plots for selection.
-groups.forEach((group, i)=>{
+	var selectedGroups = new Set();
+
+	// Create a empty scatter plot.
 	new ScatterPlot(
-		"class-list", 
-		new BoxModel([150, 150]), 
+		"main-interface", 
+		new BoxModel([600, 580]), 
 		{
 			x: {
 				label: 'likes',
@@ -343,54 +327,101 @@ groups.forEach((group, i)=>{
 				]
 			},
 			// Array of groups of points.
-			content: [group.values],
-			name: [data_category[group.key]]
+			content: []
 		},
-		4,
-		false,
-		false,
-		() => {
-			if(selectedGroups.has(i))
-				selectedGroups.delete(i);
-			else
-				selectedGroups.add(i);
-
-			d3.select('.canvas-main-interface').remove();
-			new ScatterPlot(
-				"main-interface", 
-				new BoxModel([600, 600]), 
-				{
-					x: {
-						label: 'likes',
-						range: labelRange(data_content, 'likes')
-					},
-					y: {
-						label: 'comment_count',
-						range: labelRange(data_content, 'comment_count')
-					},
-					class: {
-						label: 'category_id',
-					},
-					detail: {
-						title_label: 'title',
-						image_label: 'img_link',
-						description_label: 'description',
-						time_label: 'publish_time',
-						other_labels: [
-							"channel_title",
-							"comment_count",
-							"likes" 
-						]
-					},
-					// Array of groups of points.
-					content: [...selectedGroups].map((gIndex)=> {
-						return groups[gIndex].values;
-					})
-					//[groups[0].values, groups[1].values]
-				},
-				4
-			);
-		}
+		r
 	);
 
-});
+	// Create tiny scatter plots for selection.
+	groups.forEach((group, i)=>{
+		new ScatterPlot(
+			"class-list", 
+			new BoxModel([150, 140]), 
+			{
+				x: {
+					label: 'likes',
+					range: labelRange(data_content, 'likes')
+				},
+				y: {
+					label: 'comment_count',
+					range: labelRange(data_content, 'comment_count')
+				},
+				class: {
+					label: 'category_id',
+				},
+				detail: {
+					title_label: 'title',
+					image_label: 'img_link',
+					description_label: 'description',
+					time_label: 'publish_time',
+					other_labels: [
+						"channel_title",
+						"comment_count",
+						"likes" 
+					]
+				},
+				// Array of groups of points.
+				content: [group.values],
+				name: [data_category[group.key]]
+			},
+			r,
+			false,
+			false,
+			() => {
+				if(selectedGroups.has(i))
+					selectedGroups.delete(i);
+				else
+					selectedGroups.add(i);
+
+				d3.select('.canvas-main-interface').remove();
+				new ScatterPlot(
+					"main-interface", 
+					new BoxModel([600, 580]), 
+					{
+						x: {
+							label: 'likes',
+							range: labelRange(data_content, 'likes')
+						},
+						y: {
+							label: 'comment_count',
+							range: labelRange(data_content, 'comment_count')
+						},
+						class: {
+							label: 'category_id',
+						},
+						detail: {
+							title_label: 'title',
+							image_label: 'img_link',
+							description_label: 'description',
+							time_label: 'publish_time',
+							other_labels: [
+								"channel_title",
+								"comment_count",
+								"likes" 
+							]
+						},
+						// Array of groups of points.
+						content: [...selectedGroups].map((gIndex)=> {
+							return groups[gIndex].values;
+						})
+						//[groups[0].values, groups[1].values]
+					},
+					r
+				);
+			}
+		);
+
+	});
+}
+
+
+main(usvideo, usvideo_category);
+// main(usvideo, usvideo_category, usvideo_sampled_indices);
+
+d3.select('#sampling').on('click', function() {
+	if(this.checked) {
+		main(usvideo, usvideo_category, usvideo_sampled_indices);
+	} else {
+		main(usvideo, usvideo_category);
+	}
+})
