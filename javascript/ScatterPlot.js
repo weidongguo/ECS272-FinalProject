@@ -268,9 +268,16 @@ function EnablePopOver(parent = '') {
 	})
 }
 
+
+var data_content = usvideo_sampled_indices.map(function(i){
+	return usvideo[i];
+});
+
+var data_category = usvideo_category;
+
 var groups = d3.nest().key(function(d){
 	return d['category_id']
-}).entries(usvideo);
+}).entries(data_content);
 
 var selectedGroups = new Set();
 
@@ -281,11 +288,11 @@ new ScatterPlot(
 	{
 		x: {
 			label: 'likes',
-			range: labelRange(usvideo, 'likes')
+			range: labelRange(data_content, 'likes')
 		},
 		y: {
 			label: 'comment_count',
-			range: labelRange(usvideo, 'comment_count')
+			range: labelRange(data_content, 'comment_count')
 		},
 		class: {
 			label: 'category_id',
@@ -315,11 +322,11 @@ groups.forEach((group, i)=>{
 		{
 			x: {
 				label: 'likes',
-				range: labelRange(usvideo, 'likes')
+				range: labelRange(data_content, 'likes')
 			},
 			y: {
 				label: 'comment_count',
-				range: labelRange(usvideo, 'comment_count')
+				range: labelRange(data_content, 'comment_count')
 			},
 			class: {
 				label: 'category_id',
@@ -337,7 +344,7 @@ groups.forEach((group, i)=>{
 			},
 			// Array of groups of points.
 			content: [group.values],
-			name: [usvideo_category[group.key]]
+			name: [data_category[group.key]]
 		},
 		4,
 		false,
@@ -355,11 +362,11 @@ groups.forEach((group, i)=>{
 				{
 					x: {
 						label: 'likes',
-						range: labelRange(usvideo, 'likes')
+						range: labelRange(data_content, 'likes')
 					},
 					y: {
 						label: 'comment_count',
-						range: labelRange(usvideo, 'comment_count')
+						range: labelRange(data_content, 'comment_count')
 					},
 					class: {
 						label: 'category_id',
