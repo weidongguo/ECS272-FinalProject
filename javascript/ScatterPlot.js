@@ -194,24 +194,32 @@ class ScatterPlot {
 	}
 
 	plot(g, r=2) {
-		this.data.content.map((group)=> {
-			group.map((entry) => {
+		this.data.content.map((group, i)=> {
+			group.map((entry, j) => {
 				var x = entry[this.data.x.label];
 				var y = entry[this.data.y.label];
 				var cl = entry[this.data.class.label];
 				var tStr = entry[this.data.detail.time_label]
+				var mediaHTML = `<img src = ${entry[this.data.detail.image_label]} />`
+				var video_id = entry[this.data.detail.video_id_label]
+				if(video_id != null)
+					mediaHTML = `<iframe width='100%', hight='100%' src="https://www.youtube.com/embed/${video_id}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+				
+				var titleStr = entry[this.data.detail.title_label] + `</span><span class="close" onclick='ScatterPlot.hidePopover.call(this)'>&times;</span>`
+
 				g.append("circle")
+					.attr('id', `cir-${i}-${j}`)
 					.attr('class', 'dots')
 					.attr('cx', this.mapX(x))
 					.attr('cy', this.mapY(y))
 					.attr('fill', this.mapClass(cl))
 					.attr('r', r)
 					.attr('data-toggle', 'popover')
-					.attr('data-trigger', 'focus')
-					.attr('tabindex', '0')
-					.attr('title', entry[this.data.detail.title_label])
+					//.attr('data-trigger', 'focus')
+					//.attr('tabindex', '0')
+					.attr('title', titleStr)
 					.attr('data-content', `
-						<img src = ${entry[this.data.detail.image_label]} />
+						${mediaHTML}
 						<div>${this.data.detail.time_label + ": " + tStr.slice(0, tStr.indexOf('T'))}</div>
 						${this.data.detail.other_labels.map((label)=> {
 							return '<div>' + label.replace('_', ' ') + ': ' + entry[label] + '</div>'	
@@ -224,6 +232,11 @@ class ScatterPlot {
 		ScatterPlot.mixBlendMode = mode;
 	}
 
+	static hidePopover() {
+		// Remove popove rmanually.
+		$(this.parentElement.parentElement).trigger('hide.bs.popover');
+		d3.select(this.parentElement.parentElement).remove()
+	}
 }
 
 function labelRange(data, label) {
@@ -270,7 +283,7 @@ function EnablePopOver(parent = '') {
 	$(function () {
 	  $(`${parent} [data-toggle="popover"]`).popover({
 	  	placement: 'auto',
-	  	//trigger: 'click',
+	  	trigger: 'click',
 	  	html: true
 	  })
 	})
@@ -392,6 +405,7 @@ function main(content, category, sampled_indices = null) {
 						detail: {
 							title_label: 'title',
 							image_label: 'img_link',
+							video_id_label: 'video_id',
 							description_label: 'description',
 							time_label: 'publish_time',
 							other_labels: [
