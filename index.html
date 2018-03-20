@@ -13,6 +13,7 @@
 		    <li class="breadcrumb-item"><a href="index.html" id="title"></a>Multi-class Blue noise sampling</li>
 		    <li class="breadcrumb-item active" aria-current="page" id="subtitle">Trending Youtube Video Statistics</li>
 		  </ol>
+
 		</nav>
     
     <!--<div class="view">
@@ -39,11 +40,7 @@
 					</div>
 				</span>
 			</a>
-			<!--<div class="btn-group btn-group-toggle" data-toggle="buttons">
-				  <label class="btn btn-light" id='sampling'">-->
-				    <!--<input type="checkbox" autocomplete="off" id='sampling' > Sampling0-->
-			<!--	  </label>
-			</div>-->
+		
 			<div class="btn-group">
 			  <button id='sampling-option-display' type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 			    Sampling option
@@ -53,10 +50,23 @@
 			  	<div class="dropdown-divider"></div>
 			  </div>
 			</div>
+
+			<div class="btn-group">
+			  <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			    Data
+			  </button>
+			  <div class="dropdown-menu" id="sampling-dropdown">
+			  	<a class="dropdown-item" href="#" onclick="switchdata(sfhealthscore, sfhealthscore_metadata, sfhealthscore_category, sfhealthscore_sampled_indices)">SF Restaurants Health Inspection Data</a>
+			  	<a class="dropdown-item" href="#" onclick="switchdata(usvideo, usvideo_metadata, usvideo_category, usvideo_sampled_indices)">Trending YouTube Video Statistics</a>
+			  </div>
+			</div>
+
+
   		<div>
 	    	<div id="main-interface" class="view"></div>
 	    	<div id="class-list" class="view"></div>
     	</div>
+
     </div>
 
 		<!-- external libraries -->
@@ -65,7 +75,12 @@
 		<script src="javascript/lib/bootstrap.bundle.min.js"></script>
 		<script src="javascript/lib/d3-cloud.min.js"></script>
     
+    <!-- data -->
+    <script src="data/sfhealthscore_metadata.js"></script>
     <script src="data/sfhealthscore.js"></script>
+    <script src="data/sfhealthscore_category.js"></script>
+    <script src="data/sfhealthscore_sampled_indices.js"></script>
+    <script src="data/usvideo_metadata.js"></script>
     <script src="data/usvideo.js"></script>
     <script src="data/usvideo_category.js"></script>
     <script src="data/usvideo_sampled_indices.js"></script>

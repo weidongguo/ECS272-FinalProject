@@ -290,7 +290,7 @@ function EnablePopOver(parent = '') {
 }
 
 
-function main(content, category, sampled_indices = null) {
+function main(content, content_metadata, category, sampled_indices = null) {
 	d3.select('#class-list').selectAll("*").remove();
 	d3.select('#main-interface').selectAll("*").remove();
 
@@ -307,76 +307,53 @@ function main(content, category, sampled_indices = null) {
 	var r = 2;
 
 	var groups = d3.nest().key(function(d){
-		return d['category_id']
+		return d[content_metadata.class.label]
 	}).sortKeys(d3.ascending).entries(data_content);
 
 	var selectedGroups = new Set();
+
+	var param = {
+		x: {
+			label: content_metadata.x.label,
+			range: labelRange(content, content_metadata.x.label)
+		},
+		y: {
+			label: content_metadata.y.label,
+			range: labelRange(content, content_metadata.y.label)
+		},
+		class: {
+			label: content_metadata.class.label,
+		},
+		detail: {
+			title_label: content_metadata.detail.title_label,
+			image_label: content_metadata.detail.image_label,
+			video_id_label: content_metadata.detail.video_id_label,
+			description_label: content_metadata.detail.title_label.description_label,
+			time_label: content_metadata.detail.time_label,
+			other_labels: content_metadata.detail.other_labels
+		},
+		// Array of groups of points.
+		content: []
+	};
 
 	// Create a empty scatter plot.
 	new ScatterPlot(
 		"main-interface", 
 		new BoxModel([600, 580]), 
-		{
-			x: {
-				label: 'likes',
-				range: labelRange(data_content, 'likes')
-			},
-			y: {
-				label: 'comment_count',
-				range: labelRange(data_content, 'comment_count')
-			},
-			class: {
-				label: 'category_id',
-			},
-			detail: {
-				title_label: 'title',
-				image_label: 'img_link',
-				description_label: 'description',
-				time_label: 'publish_time',
-				other_labels: [
-					"channel_title",
-					"comment_count",
-					"likes" 
-				]
-			},
-			// Array of groups of points.
-			content: []
-		},
+		param,
 		r
 	);
 
 	// Create tiny scatter plots for selection.
+
 	groups.forEach((group, i)=>{
+		param.content = [group.values];
+		param.name = [data_category[group.key]];
+
 		new ScatterPlot(
 			"class-list", 
 			new BoxModel([150, 140]), 
-			{
-				x: {
-					label: 'likes',
-					range: labelRange(data_content, 'likes')
-				},
-				y: {
-					label: 'comment_count',
-					range: labelRange(data_content, 'comment_count')
-				},
-				class: {
-					label: 'category_id',
-				},
-				detail: {
-					title_label: 'title',
-					image_label: 'img_link',
-					description_label: 'description',
-					time_label: 'publish_time',
-					other_labels: [
-						"channel_title",
-						"comment_count",
-						"likes" 
-					]
-				},
-				// Array of groups of points.
-				content: [group.values],
-				name: [data_category[group.key]]
-			},
+			param,
 			r,
 			false,
 			false,
@@ -387,39 +364,15 @@ function main(content, category, sampled_indices = null) {
 					selectedGroups.add(i);
 
 				d3.select('.canvas-main-interface').remove();
+				param.content = [...selectedGroups].map((gIndex)=> {
+							return groups[gIndex].values;
+				});
+				param.name = null;
+
 				new ScatterPlot(
 					"main-interface", 
 					new BoxModel([600, 580]), 
-					{
-						x: {
-							label: 'likes',
-							range: labelRange(data_content, 'likes')
-						},
-						y: {
-							label: 'comment_count',
-							range: labelRange(data_content, 'comment_count')
-						},
-						class: {
-							label: 'category_id',
-						},
-						detail: {
-							title_label: 'title',
-							image_label: 'img_link',
-							video_id_label: 'video_id',
-							description_label: 'description',
-							time_label: 'publish_time',
-							other_labels: [
-								"channel_title",
-								"comment_count",
-								"likes" 
-							]
-						},
-						// Array of groups of points.
-						content: [...selectedGroups].map((gIndex)=> {
-							return groups[gIndex].values;
-						})
-						//[groups[0].values, groups[1].values]
-					},
+					param,
 					r
 				);
 			}
@@ -428,19 +381,22 @@ function main(content, category, sampled_indices = null) {
 	});
 }
 
+function switchdata(data, metadata, cateogry, sampled_indices) {
+	main(data, metadata, cateogry);
 
-main(usvideo, usvideo_category);
-// main(usvideo, usvideo_category, usvideo_sampled_indices);
+	d3.selectAll('.dropdown-item-extended').remove();
+	d3.select('#sampling-dropdown').selectAll('.dropdown-item-extended').data(sampled_indices).enter().append('a')
+		.attr('class', 'dropdown-item dropdown-item-extended')
+		.text((d) => 'r: ' + d.r)
+		.on('click', (d) => {
+				d3.select('#sampling-option-display').text('r: ' + d.r);
+				main(data, metadata, cateogry, d.indices);
+		});
 
-d3.select('#sampling-dropdown').selectAll('.dropdown-item-extended').data(usvideo_sampled_indices).enter().append('a')
-	.attr('class', 'dropdown-item')
-	.text((d) => 'r: ' + d.r)
-	.on('click', (d) => {
-			d3.select('#sampling-option-display').text('r: ' + d.r);
-			main(usvideo, usvideo_category, d.indices);
-	});
+	d3.select('#sampling-default-option').on('click', () => {
+		d3.select('#sampling-option-display').text('No sampling');
+		main(data, metadata, cateogry);
+	})
+}
 
-d3.select('#sampling-default-option').on('click', () => {
-	d3.select('#sampling-option-display').text('No sampling');
-	main(usvideo, usvideo_category);
-})
+switchdata(sfhealthscore, sfhealthscore_metadata, sfhealthscore_category, sfhealthscore_sampled_indices);
