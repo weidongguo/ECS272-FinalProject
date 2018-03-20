@@ -215,7 +215,7 @@ class ScatterPlot {
 				var description = entry[this.data.detail.description_label];
 				var descriptionHTML = '';
 				if(description != null)
-					descriptionHTML = 'description: <br>' + description;
+					descriptionHTML = '<b>description</b>: <br>' + description;
 
 				g.append("circle")
 					.attr('id', `cir-${i}-${j}`)
@@ -230,9 +230,9 @@ class ScatterPlot {
 					.attr('title', titleStr)
 					.attr('data-content', `
 						${mediaHTML}
-						<div>${this.data.detail.time_label + ": " + tStr.slice(0, tStr.indexOf('T'))}</div>
+						<div><b>${this.data.detail.time_label + "</b>: " + tStr.slice(0, tStr.indexOf('T'))}</div>
 						${this.data.detail.other_labels.map((label)=> {
-							return '<div>' + label.replace('_', ' ') + ': ' + entry[label] + '</div>'	
+							return '<div><b>' + label.replace('_', ' ') + '</b>: ' + entry[label] + '</div>'	
 						}).join("")}
 						<p>${descriptionHTML}</p>
 					`);
