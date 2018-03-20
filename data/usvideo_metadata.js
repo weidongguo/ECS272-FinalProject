@@ -19,5 +19,6 @@ var usvideo_metadata = {
 			"comment_count",
 			"likes" 
 		]
-	}
+	},
+	name: 'Trending YouTube Video Statistics'
 }

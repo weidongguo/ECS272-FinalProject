@@ -251,32 +251,6 @@ function labelRange(data, label) {
 
 	return [min, max];
 }
-/*
-function groupByClass(data, classLabel) {
-	var groups = {};
-	data.forEach((entry)=> {
-		var className = entry[classLabel]
-		if(groups[className] == undefined)
-			groups[className] = [entry];
-		else
-			groups[className].push(entry)
-	});
-
-	return groups
-}*/
-
-/*
-function randint(start, end) {
-	var diff = end - start;
-	return Math.floor(Math.random() * diff + start)
-}
-
-var content = [];
-for(var i = 0 ; i < 1000; i++) {
-	content.push(
-		{"views" : randint(0, 100), "likes" : randint(0, 50), "category_id": randint(0,10)},
-	);
-}*/
 
 // enable popover
 function EnablePopOver(parent = '') {
@@ -384,6 +358,7 @@ function main(content, content_metadata, category, sampled_indices = null) {
 function switchdata(data, metadata, cateogry, sampled_indices) {
 	main(data, metadata, cateogry);
 
+	d3.select('#subtitle').text(metadata.name)
 	d3.selectAll('.dropdown-item-extended').remove();
 	d3.select('#sampling-dropdown').selectAll('.dropdown-item-extended').data(sampled_indices).enter().append('a')
 		.attr('class', 'dropdown-item dropdown-item-extended')

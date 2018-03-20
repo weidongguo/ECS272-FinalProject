@@ -17,5 +17,7 @@ var sfhealthscore_metadata = {
 				"business_address",
 				"inspection_score"
 			]
-		}
+		},
+		name: 'SF Restaurants Health Inspection Data'
+
 }
