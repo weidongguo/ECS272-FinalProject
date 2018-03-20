@@ -297,7 +297,7 @@ function main(content, category, sampled_indices = null) {
 	var data_content = content;
 	if(sampled_indices != null) {
 		data_content = sampled_indices.map(function(i){
-			return usvideo[i];
+			return content[i];
 		});
 	}
 	
@@ -436,5 +436,11 @@ d3.select('#sampling-dropdown').selectAll('.dropdown-item-extended').data(usvide
 	.attr('class', 'dropdown-item')
 	.text((d) => 'r: ' + d.r)
 	.on('click', (d) => {
+			d3.select('#sampling-option-display').text('r: ' + d.r);
 			main(usvideo, usvideo_category, d.indices);
 	});
+
+d3.select('#sampling-default-option').on('click', () => {
+	d3.select('#sampling-option-display').text('No sampling');
+	main(usvideo, usvideo_category);
+})
