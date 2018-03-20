@@ -41,9 +41,18 @@
 			</a>
 			<!--<div class="btn-group btn-group-toggle" data-toggle="buttons">
 				  <label class="btn btn-light" id='sampling'">-->
-				    <input type="checkbox" autocomplete="off" id='sampling' > Sampling
+				    <!--<input type="checkbox" autocomplete="off" id='sampling' > Sampling0-->
 			<!--	  </label>
 			</div>-->
+			<div class="btn-group">
+			  <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			    Sampling option
+			  </button>
+			  <div class="dropdown-menu" id="sampling-dropdown">
+			  	<a class="dropdown-item" href="#" onclick="main(usvideo, usvideo_category);">No sampling</a>
+			  	<div class="dropdown-divider"></div>
+			  </div>
+			</div>
   		<div>
 	    	<div id="main-interface" class="view"></div>
 	    	<div id="class-list" class="view"></div>

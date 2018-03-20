@@ -432,10 +432,9 @@ function main(content, category, sampled_indices = null) {
 main(usvideo, usvideo_category);
 // main(usvideo, usvideo_category, usvideo_sampled_indices);
 
-d3.select('#sampling').on('click', function() {
-	if(this.checked) {
-		main(usvideo, usvideo_category, usvideo_sampled_indices);
-	} else {
-		main(usvideo, usvideo_category);
-	}
-})
+d3.select('#sampling-dropdown').selectAll('.dropdown-item-extended').data(usvideo_sampled_indices).enter().append('a')
+	.attr('class', 'dropdown-item')
+	.text((d) => 'r: ' + d.r)
+	.on('click', (d) => {
+			main(usvideo, usvideo_category, d.indices);
+	});
