@@ -200,12 +200,22 @@ class ScatterPlot {
 				var y = entry[this.data.y.label];
 				var cl = entry[this.data.class.label];
 				var tStr = entry[this.data.detail.time_label]
-				var mediaHTML = `<img src = ${entry[this.data.detail.image_label]} />`
+				var mediaHTML = '';
+
+				var image_url = entry[this.data.detail.image_label];
+				if(image_url != null)
+					mediaHTML = `<img src = ${image_url} />`
+
 				var video_id = entry[this.data.detail.video_id_label]
 				if(video_id != null)
 					mediaHTML = `<iframe width='100%', hight='100%' src="https://www.youtube.com/embed/${video_id}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
 				
 				var titleStr = entry[this.data.detail.title_label] + `</span><span class="close" onclick='ScatterPlot.hidePopover.call(this)'>&times;</span>`
+
+				var description = entry[this.data.detail.description_label];
+				var descriptionHTML = '';
+				if(description != null)
+					descriptionHTML = 'description: <br>' + description;
 
 				g.append("circle")
 					.attr('id', `cir-${i}-${j}`)
@@ -224,6 +234,7 @@ class ScatterPlot {
 						${this.data.detail.other_labels.map((label)=> {
 							return '<div>' + label.replace('_', ' ') + ': ' + entry[label] + '</div>'	
 						}).join("")}
+						<p>${descriptionHTML}</p>
 					`);
 		})})
 	}
@@ -302,7 +313,7 @@ function main(content, content_metadata, category, sampled_indices = null) {
 			title_label: content_metadata.detail.title_label,
 			image_label: content_metadata.detail.image_label,
 			video_id_label: content_metadata.detail.video_id_label,
-			description_label: content_metadata.detail.title_label.description_label,
+			description_label: content_metadata.detail.description_label,
 			time_label: content_metadata.detail.time_label,
 			other_labels: content_metadata.detail.other_labels
 		},
