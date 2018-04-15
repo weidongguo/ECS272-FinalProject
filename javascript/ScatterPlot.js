@@ -1,48 +1,5 @@
 var colormap = d3.scaleOrdinal(d3.schemeCategory20);
 
-function getTransformMatrixByElement(ele) {
-	/*var style = window.getComputedStyle(ele);
-	return new WebKitCSSMatrix(style.transform)*/
-	var consolidate = ele.transform.baseVal.consolidate();
-	if(consolidate != null)
-		return ele.transform.baseVal.consolidate().matrix;
-	else
-		return {a: 1, b: 0, c: 0, d: 1, e: 0, f: 0};
-}
-
-function applyTransformMatrix(m, p) {
-	// p.x, p.y
-	var [x, y] = p;
-	return [
-		m.a * x + m.c * y + m.e,
-		m.b * x + m.d * y + m.f
-	]
-}
-
-// =================================================================
-// Borrowed from a D3 extension: https://github.com/wbkd/d3-extended
-// Didn't find myself using the entire extensions but only two of its functions
-// So, paste them here.
-
-// handy function to make a SVG element becoming the last child of its parent. Hence, bring it to the top of the view.
-d3.selection.prototype.moveToFront = function() {  
-  return this.each(function(){
-    this.parentNode.appendChild(this); // no need to remove the child from its parent if the child is an existing node. It will jsut be moved to the end.
-  });
-};
-
-// Borrowed from https://github.com/wbkd/d3-extended
-// handy function to move a SVG element to be the first child of its parent. Hence bring it to the bottom of the view.
-d3.selection.prototype.moveToBack = function() {  
-    return this.each(function() { 
-        var firstChild = this.parentNode.firstChild; 
-        if (firstChild) { 
-            this.parentNode.insertBefore(this, firstChild); 
-        } 
-    });
-};
-// ==================================================================
-
 class ScatterPlot {
 	constructor(id, boxModel, data, radius, zoomable=true, brushable=true, onClick=null) {
 		this.id = id;
@@ -51,7 +8,6 @@ class ScatterPlot {
 		this.mapX = d3.scaleLinear().domain(data.x.range).range([0+radius, boxModel.contentWidth-radius]);
 		this.mapY = d3.scaleLinear().domain(data.y.range).range([boxModel.contentHeight-radius, 0+radius]);		
 		this.mapClass = colormap;
-		//this.mapClass = d3.scaleOrdinal(["rgb(34, 95,172)", "rgb(248, 159, 50)", "rgb(174, 57,68)"]);
 		
 		// Find the element to attach the plot.
 		var view = d3.select('#' + id);
@@ -249,6 +205,37 @@ class ScatterPlot {
 		d3.select(this.parentElement.parentElement).remove()
 	}
 }
+
+function getTransformMatrixByElement(ele) {
+	/*var style = window.getComputedStyle(ele);
+	return new WebKitCSSMatrix(style.transform)*/
+	var consolidate = ele.transform.baseVal.consolidate();
+	if(consolidate != null)
+		return ele.transform.baseVal.consolidate().matrix;
+	else
+		return {a: 1, b: 0, c: 0, d: 1, e: 0, f: 0};
+}
+
+function applyTransformMatrix(m, p) {
+	// p.x, p.y
+	var [x, y] = p;
+	return [
+		m.a * x + m.c * y + m.e,
+		m.b * x + m.d * y + m.f
+	]
+}
+
+// Borrowed from https://github.com/wbkd/d3-extended
+// handy function to move a SVG element to be the first child of its parent. Hence bring it to the bottom of the view.
+d3.selection.prototype.moveToBack = function() {  
+    return this.each(function() { 
+        var firstChild = this.parentNode.firstChild; 
+        if (firstChild) { 
+            this.parentNode.insertBefore(this, firstChild); 
+        } 
+    });
+};
+// ==================================================================
 
 function labelRange(data, label) {
 	var max = data[0][label];
