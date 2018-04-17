@@ -127,6 +127,7 @@ grid.forEach(function(element){
       keepIndices.push(element.z)
   });
 
+//get string of selected indices, call after animation completes (algorithm finishes)
 function getString(){
   grid.forEach(function(element){
       if(element != undefined)
@@ -141,6 +142,8 @@ function getString(){
   return s;
 }
 
+
+//get number of unique classes that were selected, call after getString has been called
 function getNumClassses(){
   keepIndices.forEach(function(element){
     if(!myset.has(data[element].category)){
